@@ -28,12 +28,14 @@ def main_page_view():
         print(custom_id)
 
         if check_inique_short_url(custom_id):
-            flash(f'Ссылка {custom_id} занята')
+            flash(f'Имя {custom_id} уже занято!')
             return render_template('main_page.html', form=form)
+
         if custom_id and not check_symbols(custom_id):
             flash('Допустимые символы: A-z, 0-9')
             return render_template('main_page.html', form=form)
-        if custom_id == '':
+
+        if custom_id == '' or custom_id is None:
             custom_id = ''.join(random.choices(SYMBOLS, k=6))
 
         url = URLMap(
@@ -42,10 +44,11 @@ def main_page_view():
         )
         db.session.add(url)
         db.session.commit()
-        return render_template('main_page.html',
-                               form=form,
-                               short_url=BASE_URL + url.short,
-                               original_link=url.original)
+        if url.short is not None:
+            return render_template('main_page.html',
+                                   form=form,
+                                   short_url=BASE_URL + url.short,
+                                   original_link=url.original)
     return render_template('main_page.html', form=form)
 
 
